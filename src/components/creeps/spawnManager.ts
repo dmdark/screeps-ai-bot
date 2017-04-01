@@ -9,7 +9,7 @@ export interface Task {
 
 export interface SpawnTask extends Task {
   type: 'needHarvester'|'needUpgrader';
-  sourceId: string;
+  sourceId?: string;
   spawnId: string;
 }
 
@@ -41,7 +41,6 @@ export default class SpawnManager {
       console.error("Spawn dont have tasks");
       return;
     }
-    console.log("Spawn Manager: ", task.type);
 
     if (task.type === 'needHarvester') {
       this.executeNeedHarvester(task);
@@ -57,7 +56,7 @@ export default class SpawnManager {
       return;
     }
 
-    const bodyParts = [WORK, CARRY, MOVE];
+    const bodyParts = [WORK, CARRY, CARRY, MOVE, MOVE];
     const name = `harvester-${Game.time}`;
     if (spawn && spawn.canCreateCreep(bodyParts, name) === OK) {
       spawn.createCreep(bodyParts, name, {
@@ -72,12 +71,11 @@ export default class SpawnManager {
     if (!spawn) {
       return;
     }
-    const bodyParts = [WORK, CARRY, MOVE];
+    const bodyParts = [WORK, CARRY, CARRY, MOVE, MOVE];
     const name = `upgrader-${Game.time}`;
 
     spawn.createCreep(bodyParts, name, {
-      "role": Upgrader.ROLE,
-      "bindToSourceId": task.sourceId
+      "role": Upgrader.ROLE
     });
   }
 
@@ -86,9 +84,9 @@ export default class SpawnManager {
       return null;
     }
 
-    log.info(JSON.stringify(_.countBy(this.tasks, (task) => {
+    /*log.info(JSON.stringify(_.countBy(this.tasks, (task) => {
       return task.type;
-    })));
+    })));*/
     return _.sortBy<any, any>(this.tasks, (task: any) => {
       return task.priority * 100000 + (task.priorityInner ? task.priorityInner : 0);
     }).pop();

@@ -17,18 +17,14 @@ export default class UpgradeManager {
     const harvestersCount = counts[Harvester.ROLE] ? counts[Harvester.ROLE] : 0;
     const upgradersCount = counts[Upgrader.ROLE] ? counts[Upgrader.ROLE] : 0;
 
-    const needUpgraders = Math.floor(harvestersCount / 3);
+    const needUpgraders = Math.floor(harvestersCount / 10);
 
     if (needUpgraders > upgradersCount) {
-      const source = this.spawn.pos.findClosestByPath<Source>(FIND_SOURCES);
-      if (source) {
-        SpawnManager.getInstance().addTask({
-          type: "needUpgrader",
-          spawnId: this.spawn.id,
-          sourceId: source.id,
-          priority: SpawnPriorities.NEED_UPGRADER
-        });
-      }
+      SpawnManager.getInstance().addTask({
+        type: "needUpgrader",
+        spawnId: this.spawn.id,
+        priority: SpawnPriorities.NEED_UPGRADER
+      });
     }
   }
 

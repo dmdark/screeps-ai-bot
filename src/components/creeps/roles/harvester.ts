@@ -7,10 +7,11 @@ export default class Harvester {
     const spawn = creep.room.find<Spawn>(FIND_MY_SPAWNS)[0];
 
     if (this.isNeedRenew()) {
-      if (spawn.renewCreep(creep) === ERR_NOT_IN_RANGE) {
+      console.log("need to renew", spawn.renewCreep(creep));
+      /*if (spawn.renewCreep(creep) === ERR_NOT_IN_RANGE) {
         creep.moveTo(spawn.pos);
         return;
-      }
+      }*/
     }
 
     if (!creep.memory['bindToSourceId']) {
@@ -24,9 +25,13 @@ export default class Harvester {
       return;
     }
 
-    if (_.sum(creep.carry) === creep.carryCapacity) {
+    if (_.sum(creep.carry) === creep.carryCapacity || creep.memory.transfering) {
+      creep.memory.transfering = true;
       if (creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
         creep.moveTo(spawn.pos);
+      }
+      if (_.sum(creep.carry) === 0) {
+        creep.memory.transfering = false;
       }
     } else {
       if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
