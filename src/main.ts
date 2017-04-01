@@ -1,7 +1,8 @@
-import * as CreepManager from "./components/creeps/creepManager";
 import * as Config from "./config/config";
-
-import { log } from "./lib/logger/log";
+import CreepManager from "./components/creeps/creepManager";
+import SourceManager from "./components/creeps/sourceManager";
+import SpawnManager from "./components/creeps/spawnManager";
+import UpgradeManager from "./components/creeps/upgradeManager";
 
 // Any code written outside the `loop()` method is executed only when the
 // Screeps system reloads your script.
@@ -13,7 +14,6 @@ if (Config.USE_PATHFINDER) {
   PathFinder.use(true);
 }
 
-log.info("load");
 
 /**
  * Screeps system expects this "loop" method in main.js to run the
@@ -29,20 +29,31 @@ export function loop() {
     Memory.uuid = 0;
   }
 
-  for (let i in Game.rooms) {
-    let room: Room = Game.rooms[i];
+  SpawnManager.getInstance().init();
+  const room: Room = Game.rooms["sim"];
 
-    CreepManager.run(room);
+  const sourceManager = new SourceManager(room);
+  sourceManager.run();
 
-    // Clears any non-existing creep memory.
-    for (let name in Memory.creeps) {
-      let creep: any = Memory.creeps[name];
+  const creepManager = new CreepManager(room);
+  creepManager.run();
 
-      if (creep.room === room.name) {
-        if (!Game.creeps[name]) {
-          log.info("Clearing non-existing creep memory:", name);
-          delete Memory.creeps[name];
-        }
+  const upgradeManager = new UpgradeManager(room);
+  upgradeManager.run();
+
+  SpawnManager.getInstance().execute();
+
+  clearMemory(room.name);
+}
+
+function clearMemory(roomName: string) {
+  // Clears any non-existing creep memory.
+  for (let name in Memory.creeps) {
+    let creep: any = Memory.creeps[name];
+
+    if (creep.room === roomName) {
+      if (!Game.creeps[name]) {
+        delete Memory.creeps[name];
       }
     }
   }

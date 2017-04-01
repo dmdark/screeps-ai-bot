@@ -1,40 +1,41 @@
-import * as creepActions from "../creepActions";
+import * as Config from "../../../config/config";
 
-/**
- * Runs all creep actions.
- *
- * @export
- * @param {Creep} creep
- */
-export function run(creep: Creep): void {
-  let spawn = creep.room.find<Spawn>(FIND_MY_SPAWNS)[0];
-  let energySource = creep.room.find<Source>(FIND_SOURCES_ACTIVE)[0];
+export default class Harvester {
+  public static ROLE = "harvester";
 
-  if (creepActions.needsRenew(creep)) {
-    creepActions.moveToRenew(creep, spawn);
-  } else if (_.sum(creep.carry) === creep.carryCapacity) {
-    _moveToDropEnergy(creep, spawn);
-  } else {
-    _moveToHarvest(creep, energySource);
+  public constructor(private creep: Creep) {
+    const spawn = creep.room.find<Spawn>(FIND_MY_SPAWNS)[0];
+
+    if (this.isNeedRenew()) {
+      if (spawn.renewCreep(creep) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(spawn.pos);
+        return;
+      }
+    }
+
+    if (!creep.memory['bindToSourceId']) {
+      console.log("Source not found");
+      return;
+    }
+
+    const source = Game.getObjectById<Source>(creep.memory['bindToSourceId']);
+    if (!source) {
+      console.log("Source not found");
+      return;
+    }
+
+    if (_.sum(creep.carry) === creep.carryCapacity) {
+      if (creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(spawn.pos);
+      }
+    } else {
+      if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(source.pos);
+      }
+    }
   }
-}
 
-function _tryHarvest(creep: Creep, target: Source): number {
-  return creep.harvest(target);
-}
-
-function _moveToHarvest(creep: Creep, target: Source): void {
-  if (_tryHarvest(creep, target) === ERR_NOT_IN_RANGE) {
-    creepActions.moveTo(creep, target.pos);
-  }
-}
-
-function _tryEnergyDropOff(creep: Creep, target: Spawn | Structure): number {
-  return creep.transfer(target, RESOURCE_ENERGY);
-}
-
-function _moveToDropEnergy(creep: Creep, target: Spawn | Structure): void {
-  if (_tryEnergyDropOff(creep, target) === ERR_NOT_IN_RANGE) {
-    creepActions.moveTo(creep, target.pos);
+  private isNeedRenew() {
+    return (this.creep.ticksToLive < Config.DEFAULT_MIN_LIFE_BEFORE_NEEDS_REFILL);
   }
 }
