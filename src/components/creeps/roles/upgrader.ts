@@ -8,13 +8,6 @@ export default class Upgrader {
   public constructor(private creep: Creep) {
     this.spawn = creep.room.find<Spawn>(FIND_MY_SPAWNS)[0];
 
-    if (this.isNeedRenew()) {
-      if (this.spawn.renewCreep(creep) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(this.spawn.pos);
-        return;
-      }
-    }
-
     if (!this.building()) {
       this.upgradingController();
     }

@@ -1,8 +1,5 @@
 import * as Config from "./config/config";
-import CreepManager from "./components/creeps/creepManager";
-import SourceManager from "./components/creeps/sourceManager";
-import SpawnManager from "./components/creeps/spawnManager";
-import UpgradeManager from "./components/creeps/upgradeManager";
+import RoomBrain from "./components/room-brain";
 
 // Any code written outside the `loop()` method is executed only when the
 // Screeps system reloads your script.
@@ -29,19 +26,10 @@ export function loop() {
     Memory.uuid = 0;
   }
 
-  SpawnManager.getInstance().init();
   const room: Room = Game.rooms["sim"];
-
-  const sourceManager = new SourceManager(room);
-  sourceManager.run();
-
-  const creepManager = new CreepManager(room);
-  creepManager.run();
-
-  const upgradeManager = new UpgradeManager(room);
-  upgradeManager.run();
-
-  SpawnManager.getInstance().execute();
+  const roomBrain = new RoomBrain(room);
+  roomBrain.generateIdeas();
+  roomBrain.commandCreeps();
 
   clearMemory(room.name);
 }

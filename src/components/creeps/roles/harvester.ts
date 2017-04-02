@@ -6,14 +6,6 @@ export default class Harvester {
   public constructor(private creep: Creep) {
     const spawn = creep.room.find<Spawn>(FIND_MY_SPAWNS)[0];
 
-    if (this.isNeedRenew()) {
-      console.log("need to renew", spawn.renewCreep(creep));
-      /*if (spawn.renewCreep(creep) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(spawn.pos);
-        return;
-      }*/
-    }
-
     if (!creep.memory['bindToSourceId']) {
       console.log("Source not found");
       return;
