@@ -1,5 +1,3 @@
-import {CreepRole} from "./creeps/role";
-
 export class RoomHelper {
   public static getSourceHarvestSpots(source: Source) {
     const terrains = <LookAtResultWithPos[]>source.room.lookForAtArea(
@@ -18,7 +16,10 @@ export class RoomHelper {
     return workSpots;
   }
 
-  public static getDistanceBetween(from: RoomPosition, to: RoomPosition) {
-    return from.findPathTo(to, {ignoreCreeps: true, ignoreRoads: true}).length;
+  public static getPath(from: RoomPosition, to: RoomPosition) {
+    PathFinder.use(true);
+    const path = PathFinder.search(from, {pos: to, range: 1});
+    PathFinder.use(false);
+    return path;
   }
 }

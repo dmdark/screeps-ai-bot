@@ -4,10 +4,10 @@
     "target": "es6",
     "removeComments": true,
     "noResolve": false,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "experimentalDecorators": true,
     "strictNullChecks": true,
-    "noUnusedParameters": true,
+    "noUnusedParameters": false,
     "noUnusedLocals": false,
     "sourceMap": true
   },
